@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
-
 import { useApi } from "../hooks/useApi";
 import ApiService from "../services/api";
 import AlbumCard from "../components/albums/AlbumCard";
 import AlbumModal from "../components/albums/AlbumModal";
 import Skeleton from "../components/ui/Skeleton";
+import ErrorMessage from "../components/ui/ErrorMessage";
 
 const ALBUMS_PER_PAGE = 12;
 
@@ -97,12 +97,7 @@ const AlbumsPage = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
-          <h2 className="text-2xl font-bold mb-4">Error Loading Albums</h2>
-          <p>{error}</p>
-        </div>
-      </div>
+      <ErrorMessage error={error} onRetry={() => window.location.reload()} />
     );
   }
 
@@ -155,7 +150,7 @@ const AlbumsPage = () => {
           {!hasMore && displayedAlbums.length > 0 && (
             <div className="text-center mt-8 py-6">
               <p className="text-gray-500 text-lg">
-              📚 You've reached the end of all albums!
+                📚 You've reached the end of all albums!
               </p>
               <p className="text-gray-400 text-sm mt-2">
                 Showing {displayedAlbums.length} of {albums?.length || 0} albums

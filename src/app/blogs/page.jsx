@@ -6,6 +6,7 @@ import BlogCard from "../components/blogs/BlogCard";
 import Skeleton from "../components/ui/Skeleton";
 import BlogModal from "../components/blogs/BlogModal";
 import AuthorFilter from "../components/blogs/AuthorFilter";
+import ErrorMessage from "../components/ui/ErrorMessage";
 
 const BLOGS_PER_PAGE = 12;
 
@@ -18,7 +19,7 @@ const BlogsPage = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [usersMap, setUsersMap] = useState({});
-  const [selectedAuthor, setSelectedAuthor] = useState("");
+  const [selectedAuthor, setSelectedAuthor] = useState(""); // State for selected author
 
   const observer = useRef();
 
@@ -142,12 +143,10 @@ const BlogsPage = () => {
 
   if (blogsError || usersError) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
-          <h2 className="text-2xl font-bold mb-4">Error Loading Blogs</h2>
-          <p>{blogsError || usersError}</p>
-        </div>
-      </div>
+      <ErrorMessage
+        error={blogsError || usersError}
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
