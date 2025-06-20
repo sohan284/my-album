@@ -18,7 +18,7 @@ const AlbumModal = ({ album, user, isOpen, onClose }) => {
     try {
       setLoading(true);
       const allPhotos = await ApiService.getAlbumPhotos(album.id);
-      setPhotos(allPhotos.slice(0, 5));
+      setPhotos(allPhotos.slice(0, 5)); // First 5 photos only
     } catch (error) {
       console.error("Error fetching photos:", error);
     } finally {
@@ -44,16 +44,30 @@ const AlbumModal = ({ album, user, isOpen, onClose }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {photos.map((photo) => (
-            <div key={photo.id} className="space-y-2">
-              <img
-                src={photo.thumbnailUrl}
-                alt={photo.title}
-                className="w-full h-48 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                onClick={() => window.open(photo.url, "_blank")}
-              />
-              <p className="text-sm text-gray-700 line-clamp-2">
-                {photo.title}
-              </p>
+            <div
+              key={photo.id}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+            >
+              <div className="relative">
+                <img
+                  src={photo.thumbnailUrl}
+                  alt={photo.thumbnailUrl}
+                  className="w-full h-48 object-cover bg-gray-800"
+                  loading="lazy"
+                />
+              </div>
+
+              <div className="p-3 space-y-2">
+                <h4 className="text-sm font-medium text-gray-900 line-clamp-2">
+                  {photo.title}
+                </h4>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-blue-500">
+                    url: {photo.url}
+                  </span>
+                </div>
+              </div>
             </div>
           ))}
         </div>
