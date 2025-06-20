@@ -4,6 +4,8 @@ import { useApi } from "../hooks/useApi";
 import ApiService from "../services/api";
 import BlogCard from "../components/blogs/BlogCard";
 import Skeleton from "../components/ui/Skeleton";
+import BlogModal from "../components/blogs/BlogModal";
+import AuthorFilter from "../components/blogs/AuthorFilter";
 
 const BLOGS_PER_PAGE = 12;
 
@@ -16,6 +18,7 @@ const BlogsPage = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [usersMap, setUsersMap] = useState({});
+  const [selectedAuthor, setSelectedAuthor] = useState("");
 
   const observer = useRef();
 
@@ -32,8 +35,14 @@ const BlogsPage = () => {
   } = useApi(() => ApiService.getUsers());
 
   useEffect(() => {
+    const storedLikes = localStorage.getItem("likedPosts");
+    if (storedLikes) {
+      setLikedPosts(new Set(JSON.parse(storedLikes)));
+    }
+  }, []);
+
+  useEffect(() => {
     if (users) {
-      // Create users map for efficient lookup
       const userMap = {};
       users.forEach((user) => {
         userMap[user.id] = user;
@@ -44,35 +53,41 @@ const BlogsPage = () => {
 
   useEffect(() => {
     if (blogs && users) {
-      // Initialize with first page of blogs
-      const initialBlogs = blogs.slice(0, BLOGS_PER_PAGE);
+      const filteredBlogs = selectedAuthor
+        ? blogs.filter((blog) => blog.userId === parseInt(selectedAuthor))
+        : blogs;
+
+      const initialBlogs = filteredBlogs.slice(0, BLOGS_PER_PAGE);
       setDisplayedBlogs(initialBlogs);
-      setHasMore(blogs.length > BLOGS_PER_PAGE);
+      setHasMore(filteredBlogs.length > BLOGS_PER_PAGE);
     }
-  }, [blogs, users]);
+  }, [blogs, users, selectedAuthor]);
 
   const loadMoreBlogs = useCallback(() => {
     if (!blogs || isLoadingMore || !hasMore) return;
 
     setIsLoadingMore(true);
 
-    // Simulate network delay for better UX
     setTimeout(() => {
+      const filteredBlogs = selectedAuthor
+        ? blogs.filter((blog) => blog.userId === parseInt(selectedAuthor))
+        : blogs;
+
       const startIndex = currentPage * BLOGS_PER_PAGE;
       const endIndex = startIndex + BLOGS_PER_PAGE;
-      const newBlogs = blogs.slice(startIndex, endIndex);
+      const newBlogs = filteredBlogs.slice(startIndex, endIndex);
 
       if (newBlogs.length > 0) {
         setDisplayedBlogs((prev) => [...prev, ...newBlogs]);
         setCurrentPage((prev) => prev + 1);
-        setHasMore(endIndex < blogs.length);
+        setHasMore(endIndex < filteredBlogs.length);
       } else {
         setHasMore(false);
       }
 
       setIsLoadingMore(false);
     }, 500);
-  }, [blogs, currentPage, isLoadingMore, hasMore]);
+  }, [blogs, currentPage, isLoadingMore, hasMore, selectedAuthor]);
 
   const lastBlogElementRef = useCallback(
     (node) => {
@@ -109,8 +124,20 @@ const BlogsPage = () => {
       } else {
         newLikedPosts.add(postId);
       }
+
+      // Store the liked posts in localStorage
+      localStorage.setItem(
+        "likedPosts",
+        JSON.stringify(Array.from(newLikedPosts))
+      );
+
       return newLikedPosts;
     });
+  };
+
+  const handleAuthorChange = (authorId) => {
+    setSelectedAuthor(authorId);
+    setCurrentPage(1); // Reset pagination
   };
 
   if (blogsError || usersError) {
@@ -127,6 +154,13 @@ const BlogsPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-blue-500">Blogs</h1>
+
+      {/* Author Filter */}
+      <AuthorFilter
+        usersMap={usersMap}
+        selectedAuthor={selectedAuthor}
+        onAuthorChange={handleAuthorChange}
+      />
 
       {blogsLoading || usersLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -160,7 +194,6 @@ const BlogsPage = () => {
             })}
           </div>
 
-          {/* Loading more indicator */}
           {isLoadingMore && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {[...Array(BLOGS_PER_PAGE)].map((_, index) => (
@@ -173,7 +206,6 @@ const BlogsPage = () => {
             </div>
           )}
 
-          {/* End of results message */}
           {!hasMore && displayedBlogs.length > 0 && (
             <div className="text-center mt-8 py-6">
               <p className="text-gray-500 text-lg">
@@ -187,55 +219,14 @@ const BlogsPage = () => {
         </>
       )}
 
-      {/* Modal */}
-      {modalOpen && selectedBlog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-3/4 max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold pr-4">{selectedBlog.title}</h2>
-              <button
-                className="text-gray-500 hover:text-gray-700 text-xl font-bold"
-                onClick={() => setModalOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="mb-4">
-              <p className="text-gray-600 mb-2">
-                <strong>Author:</strong>{" "}
-                {usersMap[selectedBlog.userId]?.name || "Unknown"}
-              </p>
-              <p className="text-gray-500 text-sm">
-                <strong>Email:</strong>{" "}
-                {usersMap[selectedBlog.userId]?.email || "Unknown"}
-              </p>
-            </div>
-            <div className="prose max-w-none">
-              <p className="text-gray-700 leading-relaxed">
-                {selectedBlog.body}
-              </p>
-            </div>
-            <div className="flex justify-between items-center mt-6 pt-4 border-t">
-              <button
-                onClick={() => handleLikeToggle(selectedBlog.id)}
-                className={`px-4 py-2 rounded-full text-sm transition-colors ${
-                  likedPosts.has(selectedBlog.id)
-                    ? "bg-red-100 text-red-600 hover:bg-red-200"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {likedPosts.has(selectedBlog.id) ? "❤️ Liked" : "🤍 Like"}
-              </button>
-              <button
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                onClick={() => setModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <BlogModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        blog={selectedBlog}
+        user={usersMap[selectedBlog?.userId]}
+        liked={likedPosts.has(selectedBlog?.id)}
+        onLikeToggle={handleLikeToggle}
+      />
     </div>
   );
 };

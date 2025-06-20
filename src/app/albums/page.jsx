@@ -155,7 +155,7 @@ const AlbumsPage = () => {
           {!hasMore && displayedAlbums.length > 0 && (
             <div className="text-center mt-8 py-6">
               <p className="text-gray-500 text-lg">
-                You've reached the end of all albums!
+              📚 You've reached the end of all albums!
               </p>
               <p className="text-gray-400 text-sm mt-2">
                 Showing {displayedAlbums.length} of {albums?.length || 0} albums

@@ -7,7 +7,7 @@ const BlogCard = ({ post, user, onPostClick, liked, onLikeToggle }) => {
   return (
     <Card className="relative">
       <div onClick={onPostClick}>
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2 cursor-pointer hover:text-blue-600">
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2 cursor-pointer text-blue-500">
           {post.title}
         </h3>
         <p className="text-gray-600 mb-2">

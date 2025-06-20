@@ -52,7 +52,7 @@ const AlbumModal = ({ album, user, isOpen, onClose }) => {
                 <img
                   src={photo.thumbnailUrl}
                   alt={photo.thumbnailUrl}
-                  className="w-full h-48 object-cover bg-gray-800"
+                  className="w-full h-48 object-cover bg-gray-600"
                   loading="lazy"
                 />
               </div>

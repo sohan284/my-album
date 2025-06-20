@@ -14,7 +14,6 @@ const get = async (endpoint) => {
 };
 
 const ApiService = {
-  // Albums API
   getAlbums: async () => {
     return get("/albums");
   },
@@ -23,7 +22,6 @@ const ApiService = {
     return get(`/photos?albumId=${albumId}`);
   },
 
-  // Users API
   getUsers: async () => {
     return get("/users");
   },
@@ -32,7 +30,6 @@ const ApiService = {
     return get(`/users/${userId}`);
   },
 
-  // Posts API
   getPosts: async () => {
     return get("/posts");
   },
