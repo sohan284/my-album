@@ -1,49 +1,49 @@
-const BASE_URL = 'https://jsonplaceholder.typicode.com';
+const BASE_URL = "https://jsonplaceholder.typicode.com";
 
-class ApiService {
-  async get(endpoint) {
-    try {
-      const response = await fetch(`${BASE_URL}${endpoint}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+const get = async (endpoint) => {
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    return await response.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
   }
+};
 
+const ApiService = {
   // Albums API
-  async getAlbums() {
-    return this.get('/albums');
-  }
+  getAlbums: async () => {
+    return get("/albums");
+  },
 
-  async getAlbumPhotos(albumId) {
-    return this.get(`/photos?albumId=${albumId}`);
-  }
+  getAlbumPhotos: async (albumId) => {
+    return get(`/photos?albumId=${albumId}`);
+  },
 
   // Users API
-  async getUsers() {
-    return this.get('/users');
-  }
+  getUsers: async () => {
+    return get("/users");
+  },
 
-  async getUser(userId) {
-    return this.get(`/users/${userId}`);
-  }
+  getUser: async (userId) => {
+    return get(`/users/${userId}`);
+  },
 
   // Posts API
-  async getPosts() {
-    return this.get('/posts');
-  }
+  getPosts: async () => {
+    return get("/posts");
+  },
 
-  async getPost(postId) {
-    return this.get(`/posts/${postId}`);
-  }
+  getPost: async (postId) => {
+    return get(`/posts/${postId}`);
+  },
 
-  async getPostComments(postId) {
-    return this.get(`/comments?postId=${postId}`);
-  }
-}
+  getPostComments: async (postId) => {
+    return get(`/comments?postId=${postId}`);
+  },
+};
 
-export default new ApiService();
+export default ApiService;

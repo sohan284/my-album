@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useApi } from "../../hooks/useApi";
-import ApiService from "../../services/api";
-import AlbumCard from "../../components/albums/AlbumCard";
-import AlbumModal from "../../components/albums/AlbumModal";
-import Skeleton from "../../components/ui/Skeleton";
+
+import { useApi } from "../hooks/useApi";
+import ApiService from "../services/api";
+import AlbumCard from "../components/albums/AlbumCard";
+import AlbumModal from "../components/albums/AlbumModal";
+import Skeleton from "../components/ui/Skeleton";
 
 const AlbumsPage = () => {
   const [users, setUsers] = useState({});
