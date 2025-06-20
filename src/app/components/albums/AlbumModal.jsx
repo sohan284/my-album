@@ -18,7 +18,7 @@ const AlbumModal = ({ album, user, isOpen, onClose }) => {
     try {
       setLoading(true);
       const allPhotos = await ApiService.getAlbumPhotos(album.id);
-      setPhotos(allPhotos.slice(0, 5)); // First 5 photos
+      setPhotos(allPhotos.slice(0, 5));
     } catch (error) {
       console.error("Error fetching photos:", error);
     } finally {
